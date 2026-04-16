@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rio | Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --bg:#080b14;--bg2:#0d1120;--bg3:#131829;
+      --accent:#6c63ff;--accent2:#a78bfa;--accent3:#38bdf8;
+      --text:#f0eeff;--muted:#7c7a99;--border:rgba(108,99,255,0.2);
+      --card:rgba(19,24,41,0.85);
+    }
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+    }
+    body{
+      font-family:'DM Sans',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+      position:relative;
+    }
+    #bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+    /* LOADER */
+    #loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity 0.5s,visibility 0.5s;}
+    #loader.hide{opacity:0;visibility:hidden;}
+    .loader-boxes{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .lb{width:28px;height:28px;border:2px solid var(--accent);animation:spinBox 1.2s ease-in-out infinite;}
+    .lb:nth-child(1){animation-delay:0s;border-color:var(--accent);}
+    .lb:nth-child(2){animation-delay:0.3s;border-color:var(--accent2);}
+    .lb:nth-child(3){animation-delay:0.6s;border-color:var(--accent3);}
+    .lb:nth-child(4){animation-delay:0.9s;border-color:var(--accent);}
+    @keyframes spinBox{0%,100%{transform:rotate(0deg) scale(1);opacity:0.4}50%{transform:rotate(180deg) scale(1.15);opacity:1}}
+    .loader-text{font-family:'Syne',sans-serif;font-size:14px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;animation:fadeText 1.5s ease-in-out infinite;}
+    @keyframes fadeText{0%,100%{opacity:0.4}50%{opacity:1}}
+
+    /* NAV — full width */
+    nav{
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:rgba(8,11,20,0.92);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      width:100%;
+    }
+    .nav-inner{
+      width:100%;
+      max-width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      height:58px;
+      padding:0 48px;
+    }
+    .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;background:linear-gradient(90deg,var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .nav-tabs{display:flex;gap:2px;}
+    .tab-btn{background:none;border:none;cursor:pointer;padding:7px 16px;border-radius:22px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--muted);transition:all 0.25s;letter-spacing:0;}
+    .tab-btn:hover{color:var(--text);background:rgba(108,99,255,0.1);}
+    .tab-btn.active{color:var(--accent2);background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);}
+
+    /* WRAPPER — full width with side padding */
+    .wrapper{
+      width:100%;
+      padding:0 48px;
+      position:relative;
+      z-index:1;
+    }
+
+    .page{display:none;}
+    .page.active{display:block;animation:fadeSlide 0.4s cubic-bezier(.4,0,.2,1);}
+    @keyframes fadeSlide{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+    /* HOME */
+    .home-hero{padding:76px 0 56px;display:flex;flex-direction:column;gap:26px;}
+    .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.35);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--accent2);width:fit-content;animation:pulseBadge 2.5s ease-in-out infinite;letter-spacing:0.3px;}
+    @keyframes pulseBadge{0%,100%{box-shadow:0 0 0 0 rgba(108,99,255,0.3)}50%{box-shadow:0 0 0 6px rgba(108,99,255,0)}}
+    .badge-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:blink 1.5s ease-in-out infinite;flex-shrink:0;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+    .home-title{
+      font-family:'Syne',sans-serif;
+      font-size:clamp(48px,7vw,88px);
+      font-weight:800;
+      line-height:1.08;
+      letter-spacing:-1px;
+    }
+    .home-title .name{
+      background:linear-gradient(135deg,var(--accent2) 0%,var(--accent3) 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .home-sub{font-size:17px;color:var(--muted);line-height:1.75;max-width:560px;}
+    .home-sub b{color:var(--accent2);font-weight:500;}
+    .home-cta{display:flex;gap:12px;flex-wrap:wrap;}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;padding:12px 28px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.25s;letter-spacing:0.2px;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,99,255,0.4);}
+    .btn-outline{background:none;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:12px 28px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.25s;letter-spacing:0.2px;}
+    .btn-outline:hover{border-color:var(--accent2);color:var(--accent2);transform:translateY(-2px);}
+
+    .info-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;max-width:720px;}
+    .icard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;animation:floatCard 4s ease-in-out infinite;}
+    .icard:nth-child(2){animation-delay:1.3s;}.icard:nth-child(3){animation-delay:2.6s;}
+    @keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+    .icard-icon{font-size:24px;margin-bottom:10px;}
+    .icard-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--accent2);letter-spacing:-0.5px;}
+    .icard-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+
+    .section{padding:56px 0;}
+    .section-head{margin-bottom:40px;}
+    .section-title{
+      font-family:'Syne',sans-serif;
+      font-size:clamp(28px,4vw,42px);
+      font-weight:800;
+      letter-spacing:-0.5px;
+      line-height:1.1;
+    }
+    .section-title span{color:var(--accent2);}
+    .section-sub{font-size:14px;color:var(--muted);margin-top:7px;}
+    .divider{height:1px;background:var(--border);margin:28px 0;}
+
+    /* DATA DIRI */
+    .profile-wrap{display:grid;grid-template-columns:200px 1fr;gap:40px;align-items:start;}
+    .avatar-side{display:flex;flex-direction:column;align-items:center;gap:14px;}
+    .avatar{width:140px;height:140px;border-radius:50%;background:linear-gradient(135deg,var(--accent) 0%,var(--accent3) 100%);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:46px;font-weight:800;color:#fff;border:3px solid rgba(108,99,255,0.4);animation:avatarPulse 3s ease-in-out infinite;}
+    @keyframes avatarPulse{0%,100%{box-shadow:0 0 0 0 rgba(108,99,255,0.4)}50%{box-shadow:0 0 0 12px rgba(108,99,255,0)}}
+    .online-pill{display:flex;align-items:center;gap:5px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#4ade80;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .info-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+    .info-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+    .info-val{font-size:15px;font-weight:500;}
+    .skill-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+    .skill-list{display:flex;flex-direction:column;gap:14px;}
+    .skill-row{display:flex;flex-direction:column;gap:6px;}
+    .skill-name-row{display:flex;justify-content:space-between;font-size:13px;}
+    .skill-pct{color:var(--accent2);font-size:12px;}
+    .skill-bar-bg{height:6px;background:rgba(108,99,255,0.12);border-radius:99px;overflow:hidden;}
+    .skill-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent3));transition:width 1.1s cubic-bezier(.4,0,.2,1);}
+    .tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+    .tag{background:rgba(108,99,255,0.1);border:1px solid var(--border);border-radius:6px;padding:5px 14px;font-size:12px;color:var(--accent2);}
+
+    /* PROYEK */
+    .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+    .proj-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all 0.3s;cursor:pointer;text-decoration:none;display:block;}
+    .proj-card:hover{border-color:var(--accent2);transform:translateY(-5px);box-shadow:0 12px 32px rgba(108,99,255,0.2);}
+    .proj-img-wrap{width:100%;height:180px;overflow:hidden;position:relative;background:var(--bg3);}
+    .proj-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s;}
+    .proj-card:hover .proj-img-wrap img{transform:scale(1.06);}
+    .proj-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:44px;background:linear-gradient(135deg,rgba(108,99,255,0.15),rgba(56,189,248,0.1));}
+    .proj-info{padding:18px 20px;}
+    .proj-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:7px;letter-spacing:-0.2px;}
+    .proj-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:12px;}
+    .proj-link{font-size:12px;color:var(--accent2);display:flex;align-items:center;gap:4px;}
+    .proj-link::after{content:'→';transition:transform 0.2s;}
+    .proj-card:hover .proj-link::after{transform:translateX(4px);}
+
+    /* PENGALAMAN */
+    .timeline{display:flex;flex-direction:column;}
+    .tl-item{display:grid;grid-template-columns:100px 1fr;gap:24px;position:relative;}
+    .tl-item:not(:last-child)::after{content:'';position:absolute;left:99px;top:28px;bottom:-28px;width:1px;background:var(--border);}
+    .tl-year{font-size:12px;color:var(--muted);padding-top:2px;text-align:right;}
+    .tl-dot{position:absolute;left:91px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 8px var(--accent);}
+    .tl-content{padding-bottom:36px;}
+    .tl-role{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;letter-spacing:-0.2px;}
+    .tl-place{font-size:13px;color:var(--accent2);margin:4px 0 10px;}
+    .tl-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+
+    /* KONTAK */
+    .kontak-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:800px;}
+    .kontak-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;display:flex;align-items:center;gap:14px;transition:all 0.25s;}
+    .kontak-card:hover{border-color:var(--accent2);transform:translateY(-3px);box-shadow:0 8px 24px rgba(108,99,255,0.15);}
+    .k-icon{width:44px;height:44px;border-radius:10px;background:rgba(108,99,255,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+    .k-lbl{font-size:11px;color:var(--muted);}
+    .k-val{font-size:14px;font-weight:500;}
+    .form-area{display:flex;flex-direction:column;gap:14px;margin-top:32px;max-width:800px;}
+    .f-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .f-group{display:flex;flex-direction:column;gap:6px;}
+    .f-label{font-size:12px;color:var(--muted);}
+    .f-input,.f-textarea{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
+    .f-input:focus,.f-textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(108,99,255,0.1);}
+    .f-textarea{resize:vertical;min-height:120px;}
+
+    @media(max-width:768px){
+      .nav-inner{padding:0 20px;}
+      .wrapper{padding:0 20px;}
+      .profile-wrap{grid-template-columns:1fr;}
+      .info-strip{grid-template-columns:1fr;}
+      .kontak-grid{grid-template-columns:1fr;}
+      .f-row{grid-template-columns:1fr;}
+      .home-title{font-size:clamp(36px,10vw,60px);}
+    }
+  </style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-boxes">
+    <div class="lb"></div><div class="lb"></div>
+    <div class="lb"></div><div class="lb"></div>
+  </div>
+  <div class="loader-text">Memuat Portfolio...</div>
+</div>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">rio.dev</div>
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="showPage('home')">Beranda</button>
+      <button class="tab-btn" onclick="showPage('datadiri')">Data Diri</button>
+      <button class="tab-btn" onclick="showPage('proyek')">Proyek</button>
+      <button class="tab-btn" onclick="showPage('pengalaman')">Pengalaman</button>
+      <button class="tab-btn" onclick="showPage('kontak')">Kontak</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="wrapper">
+    <div class="home-hero">
+      <div class="badge"><span class="badge-dot"></span> Siswa Aktif SMK · Terbuka untuk Kolaborasi</div>
+      <h1 class="home-title">Halo, saya<br><span class="name">Rio</span></h1>
+      <p class="home-sub">Siswa <b>SMK Strada Jakarta</b> jurusan <b>Teknik Informatika</b> yang passionate di dunia pemrograman & teknologi.</p>
+      <div class="home-cta">
+        <button class="btn-primary" onclick="showPage('datadiri')">Kenalan Lebih Dekat</button>
+        <button class="btn-outline" onclick="showPage('kontak')">Hubungi Saya</button>
+      </div>
+      <div class="info-strip">
+        <div class="icard"><div class="icard-icon">🎓</div><div class="icard-val">SMK</div><div class="icard-lbl">Strada Jakarta</div></div>
+        <div class="icard"><div class="icard-icon">💻</div><div class="icard-val">Aktif</div><div class="icard-lbl">Belajar Pemrograman</div></div>
+        <div class="icard"><div class="icard-icon">🚀</div><div class="icard-val">Siap</div><div class="icard-lbl">Kolaborasi & Magang</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATA DIRI -->
+<div id="page-datadiri" class="page">
+  <div class="wrapper">
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">Data <span>Diri</span></div>
+        <div class="section-sub">Kenalan dulu sama aku!</div>
+      </div>
+      <div class="profile-wrap">
+        <div class="avatar-side">
+          <div class="avatar">R</div>
+          <div class="online-pill"><span style="width:6px;height:6px;background:#4ade80;border-radius:50%;"></span> Siswa Aktif</div>
+        </div>
+        <div>
+          <div class="info-grid">
+            <div class="info-box"><div class="info-label">Nama</div><div class="info-val">Rio</div></div>
+            <div class="info-box"><div class="info-label">Sekolah</div><div class="info-val">SMK Strada Jakarta</div></div>
+            <div class="info-box"><div class="info-label">Jurusan</div><div class="info-val">Teknik Informatika</div></div>
+            <div class="info-box"><div class="info-label">Fokus</div><div class="info-val">Pemrograman & Web Dev</div></div>
+            <div class="info-box"><div class="info-label">Domisili</div><div class="info-val">Jakarta, Indonesia</div></div>
+            <div class="info-box"><div class="info-label">Status</div><div class="info-val">Calon Lulusan SMK</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="skill-title">Kemampuan Teknis</div>
+      <div class="skill-list" id="skill-bars"></div>
+      <div class="divider"></div>
+      <div class="skill-title">Tools & Teknologi</div>
+      <div class="tag-list">
+        <div class="tag">HTML & CSS</div><div class="tag">JavaScript</div>
+        <div class="tag">PHP</div><div class="tag">Laravel</div>
+        <div class="tag">Frontend Dev</div><div class="tag">Git & GitHub</div>
+        <div class="tag">VS Code</div><div class="tag">SEO</div><div class="tag">MySQL</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROYEK -->
+<div id="page-proyek" class="page">
+  <div class="wrapper">
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">Pro<span>yek</span></div>
+        <div class="section-sub">Website & karya yang pernah aku kerjakan — klik untuk kunjungi</div>
+      </div>
+      <div class="proj-grid">
+
+        <a class="proj-card" href="https://linkwebsite1.com" target="_blank">
+          <div class="proj-img-wrap">
+            <img src="assets/projects/project1.jpg" alt="Project 1"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="proj-img-placeholder" style="display:none;">🌐</div>
+          </div>
+          <div class="proj-info">
+            <div class="proj-name">Nama Website 1</div>
+            <div class="proj-desc">Deskripsi singkat website ini apa dan dibuat pakai apa.</div>
+            <div class="proj-link">Kunjungi Website</div>
+          </div>
+        </a>
+
+        <a class="proj-card" href="https://linkwebsite2.com" target="_blank">
+          <div class="proj-img-wrap">
+            <img src="assets/projects/project2.jpg" alt="Project 2"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="proj-img-placeholder" style="display:none;">🛒</div>
+          </div>
+          <div class="proj-info">
+            <div class="proj-name">Nama Website 2</div>
+            <div class="proj-desc">Deskripsi singkat website ini apa dan dibuat pakai apa.</div>
+            <div class="proj-link">Kunjungi Website</div>
+          </div>
+        </a>
+
+        <a class="proj-card" href="https://linkwebsite3.com" target="_blank">
+          <div class="proj-img-wrap">
+            <img src="assets/projects/project3.jpg" alt="Project 3"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="proj-img-placeholder" style="display:none;">📝</div>
+          </div>
+          <div class="proj-info">
+            <div class="proj-name">Nama Website 3</div>
+            <div class="proj-desc">Deskripsi singkat website ini apa dan dibuat pakai apa.</div>
+            <div class="proj-link">Kunjungi Website</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PENGALAMAN -->
+<div id="page-pengalaman" class="page">
+  <div class="wrapper">
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">Peng<span>alaman</span></div>
+        <div class="section-sub">Perjalanan belajar & magang Rio</div>
+      </div>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-year">2024–2025</div>
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-role">SEO Specialist Intern</div>
+            <div class="tl-place">SSP Training Center · Magang (PKL)</div>
+            <div class="tl-desc">Ditugaskan sebagai SEO (Search Engine Optimization) — mengupload dan mengoptimasi artikel di beberapa website klien agar muncul di halaman pencarian Google. Belajar teknik on-page SEO, keyword research, dan manajemen konten web secara langsung di dunia kerja.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2023</div>
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-role">Siswa Aktif Jurusan TI</div>
+            <div class="tl-place">SMK Strada Jakarta · Akademik</div>
+            <div class="tl-desc">Mempelajari dasar-dasar pemrograman, jaringan komputer, dan pengembangan web. Aktif mengikuti praktikum dan project sekolah di bidang Teknik Informatika.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2022</div>
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-role">Siswa Baru SMK Strada</div>
+            <div class="tl-place">SMK Strada Jakarta · Akademik</div>
+            <div class="tl-desc">Memulai perjalanan di dunia IT. Semangat belajar dari nol — dari mengenal komputer hingga nulis kode pertama!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KONTAK -->
+<div id="page-kontak" class="page">
+  <div class="wrapper">
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">Hubungi <span>Saya</span></div>
+        <div class="section-sub">Ada pertanyaan atau kolaborasi? Let's connect!</div>
+      </div>
+      <div class="kontak-grid">
+        <div class="kontak-card"><div class="k-icon">✉️</div><div><div class="k-lbl">Email</div><div class="k-val">rio@email.com</div></div></div>
+        <div class="kontak-card"><div class="k-icon">💼</div><div><div class="k-lbl">LinkedIn</div><div class="k-val">linkedin.com/in/rio</div></div></div>
+        <div class="kontak-card"><div class="k-icon">⌨️</div><div><div class="k-lbl">GitHub</div><div class="k-val">github.com/rio</div></div></div>
+        <div class="kontak-card"><div class="k-icon">📍</div><div><div class="k-lbl">Lokasi</div><div class="k-val">Jakarta, Indonesia</div></div></div>
+      </div>
+      <div class="form-area">
+        <div class="f-row">
+          <div class="f-group"><div class="f-label">Nama</div><input class="f-input" placeholder="Nama kamu"/></div>
+          <div class="f-group"><div class="f-label">Email</div><input class="f-input" placeholder="email@kamu.com"/></div>
+        </div>
+        <div class="f-group"><div class="f-label">Subjek</div><input class="f-input" placeholder="Topik pesan"/></div>
+        <div class="f-group"><div class="f-label">Pesan</div><textarea class="f-textarea" placeholder="Halo Rio!"></textarea></div>
+        <button class="btn-primary" style="width:fit-content;">Kirim Pesan 🚀</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('load',()=>{ setTimeout(()=>{ document.getElementById('loader').classList.add('hide'); },1800); });
+
+const canvas=document.getElementById('bg-canvas');
+const ctx=canvas.getContext('2d');
+let squares=[];
+function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+resize(); window.addEventListener('resize',resize);
+function randomSquare(){
+  const size=Math.random()*26+7;
+  return{x:Math.random()*canvas.width,y:canvas.height+size+Math.random()*300,
+    size,speed:Math.random()*0.4+0.15,opacity:Math.random()*0.11+0.03,
+    rotation:Math.random()*Math.PI*2,rotSpeed:(Math.random()-0.5)*0.008,
+    drift:(Math.random()-0.5)*0.3,color:Math.random()>0.5?'#6c63ff':'#38bdf8'};
+}
+for(let i=0;i<52;i++){const s=randomSquare();s.y=Math.random()*canvas.height;squares.push(s);}
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  squares.forEach(s=>{
+    ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.rotation);
+    ctx.strokeStyle=s.color;ctx.globalAlpha=s.opacity;ctx.lineWidth=1.3;
+    ctx.strokeRect(-s.size/2,-s.size/2,s.size,s.size);ctx.restore();
+    s.y-=s.speed;s.x+=s.drift;s.rotation+=s.rotSpeed;
+    if(s.y<-s.size*2)Object.assign(s,randomSquare());
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+
+const pageMap={home:0,datadiri:1,proyek:2,pengalaman:3,kontak:4};
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn')[pageMap[id]].classList.add('active');
+  if(id==='datadiri')animateBars();
+}
+
+const skills=[
+  {name:'PHP & Laravel',pct:75},
+  {name:'Frontend (HTML/CSS/JS)',pct:80},
+  {name:'SEO & Content',pct:85},
+  {name:'MySQL / Database',pct:65},
+  {name:'Git & GitHub',pct:60},
+];
+const container=document.getElementById('skill-bars');
+skills.forEach(s=>{
+  container.innerHTML+=`<div class="skill-row">
+    <div class="skill-name-row"><span>${s.name}</span><span class="skill-pct">${s.pct}%</span></div>
+    <div class="skill-bar-bg"><div class="skill-bar" data-pct="${s.pct}" style="width:0%"></div></div>
+  </div>`;
+});
+function animateBars(){
+  setTimeout(()=>{ document.querySelectorAll('.skill-bar').forEach(b=>{ b.style.width=b.dataset.pct+'%'; }); },120);
+}
+</script>
+</body>
+</html>
